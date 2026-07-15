@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Bus Ticket Booking Prototype</title>
+	<style>
+		:root {
+			--bg: #f4f7fb;
+			--surface: #ffffff;
+			--surface-2: #f8fafc;
+			--border: #e4e9f2;
+			--text: #102033;
+			--muted: #6c7a8b;
+			--brand: #304ffe;
+			--brand-dark: #2439c7;
+			--brand-soft: #e8edff;
+			--available: #eef2f7;
+			--available-text: #5f6c7b;
+			--selected: #304ffe;
+			--selected-text: #ffffff;
+			--booked: #ff9f99;
+			--booked-text: #7f1d1d;
+			--success: #16a34a;
+			--warning: #f59e0b;
+			--shadow: 0 20px 50px rgba(16, 32, 51, 0.12);
+			--radius-xl: 30px;
+			--radius-lg: 22px;
+			--radius-md: 16px;
+			--radius-sm: 12px;
+			--space: 8px;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html, body {
+			margin: 0;
+			min-height: 100%;
+			background:
+				radial-gradient(circle at top left, rgba(48, 79, 254, 0.08), transparent 26%),
+				radial-gradient(circle at top right, rgba(255, 159, 153, 0.12), transparent 22%),
+				linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+			color: var(--text);
+			font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+		}
+
+		body {
+			padding: 24px 16px 40px;
+		}
+
+		.page {
+			max-width: 430px;
+			margin: 0 auto;
+			display: grid;
+			gap: 18px;
+		}
+
+		.design-notes {
+			background: rgba(255, 255, 255, 0.72);
+			border: 1px solid rgba(228, 233, 242, 0.9);
+			backdrop-filter: blur(8px);
+			border-radius: 20px;
+			padding: 16px;
+			box-shadow: 0 10px 30px rgba(16, 32, 51, 0.06);
+		}
+
+		.design-notes h1 {
+			margin: 0 0 8px;
+			font-size: 1.15rem;
+			line-height: 1.25;
+		}
+
+		.design-notes p {
+			margin: 0;
+			color: var(--muted);
+			line-height: 1.55;
+			font-size: 0.95rem;
+		}
+
+		.token-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+			margin-top: 12px;
+		}
+
+		.token {
+			padding: 8px 10px;
+			border-radius: 999px;
+			background: #fff;
+			border: 1px solid var(--border);
+			color: var(--muted);
+			font-size: 0.78rem;
+			font-weight: 600;
+		}
+
+		.mobile-frame {
+			background: rgba(255, 255, 255, 0.72);
+			border: 1px solid rgba(228, 233, 242, 0.96);
+			border-radius: 34px;
+			box-shadow: var(--shadow);
+			overflow: hidden;
+			backdrop-filter: blur(10px);
+		}
+
+		.status-bar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 12px 18px 0;
+			font-size: 0.78rem;
+			font-weight: 700;
+			color: var(--muted);
+		}
+
+		.app-shell {
+			min-height: 780px;
+			display: grid;
+			grid-template-rows: auto 1fr;
+			background: linear-gradient(180deg, #ffffff 0%, #f7f9fd 100%);
+		}
+
+		.screen {
+			display: none;
+			min-height: 0;
+			padding: 14px 16px 18px;
+		}
+
+		.screen.active {
+			display: grid;
+			grid-template-rows: auto auto 1fr;
+			gap: 14px;
+			animation: fadeIn 0.28s ease;
+		}
+
+		.header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 24px;
+			padding: 14px 16px;
+			box-shadow: 0 10px 24px rgba(16, 32, 51, 0.05);
+		}
+
+		.header-left {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.icon-btn {
+			width: 40px;
+			height: 40px;
+			border: 0;
+			border-radius: 14px;
+			background: #f3f6fc;
+			color: var(--text);
+			font-size: 1rem;
+			font-weight: 700;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+		}
+
+		.title-block h2 {
+			margin: 0;
+			font-size: 1rem;
+			line-height: 1.2;
+		}
+
+		.title-block p {
+			margin: 2px 0 0;
+			color: var(--muted);
+			font-size: 0.78rem;
+		}
+
+		.avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--brand), #6a7dff);
+			color: #fff;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 800;
+			box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.26);
+		}
+
+		.search-card {
+			background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-xl);
+			padding: 16px;
+			box-shadow: 0 12px 30px rgba(16, 32, 51, 0.06);
+			display: grid;
+			gap: 12px;
+		}
+
+		.panel-label {
+			margin: 0;
+			color: var(--muted);
+			font-size: 0.8rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+		}
+
+		.field {
+			display: grid;
+			gap: 6px;
+		}
+
+		.field label {
+			font-size: 0.8rem;
+			font-weight: 700;
+			color: #445366;
+		}
+
+		.input,
+		.date-picker {
+			width: 100%;
+			height: 50px;
+			border-radius: 16px;
+			border: 1px solid var(--border);
+			background: #fff;
+			padding: 0 14px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: var(--text);
+			font-size: 0.95rem;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		}
+
+		.input span,
+		.date-picker span {
+			color: var(--muted);
+			flex: 1;
+		}
+
+		.search-button,
+		.payment-button {
+			height: 52px;
+			border: 0;
+			border-radius: 16px;
+			background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+			color: #fff;
+			font-size: 0.98rem;
+			font-weight: 800;
+			letter-spacing: 0.01em;
+			box-shadow: 0 14px 30px rgba(48, 79, 254, 0.25);
+			cursor: pointer;
+		}
+
+		.section-title {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin: 2px 2px 0;
+		}
+
+		.section-title h3 {
+			margin: 0;
+			font-size: 1rem;
+		}
+
+		.section-title span {
+			color: var(--muted);
+			font-size: 0.82rem;
+			font-weight: 600;
+		}
+
+		.results {
+			display: grid;
+			gap: 12px;
+			align-content: start;
+			overflow: auto;
+			padding-bottom: 8px;
+		}
+
+		.result-card {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 22px;
+			padding: 14px;
+			box-shadow: 0 12px 24px rgba(16, 32, 51, 0.05);
+			display: grid;
+			gap: 12px;
+		}
+
+		.result-top {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			gap: 12px;
+		}
+
+		.operator {
+			font-size: 1rem;
+			font-weight: 800;
+			line-height: 1.3;
+			margin: 0;
+		}
+
+		.bus-type {
+			margin: 4px 0 0;
+			color: var(--muted);
+			font-size: 0.82rem;
+		}
+
+		.price-chip {
+			padding: 8px 10px;
+			border-radius: 999px;
+			background: var(--brand-soft);
+			color: var(--brand-dark);
+			font-weight: 800;
+			font-size: 0.9rem;
+			white-space: nowrap;
+		}
+
+		.trip-row {
+			display: grid;
+			grid-template-columns: 1fr auto 1fr;
+			gap: 10px;
+			align-items: center;
+			padding: 12px;
+			border-radius: 18px;
+			background: linear-gradient(180deg, #f9fbff 0%, #f2f6fc 100%);
+			border: 1px solid #edf1f7;
+		}
+
+		.trip-time strong {
+			display: block;
+			font-size: 1rem;
+			line-height: 1.2;
+		}
+
+		.trip-time span {
+			color: var(--muted);
+			font-size: 0.78rem;
+		}
+
+		.trip-arrow {
+			width: 32px;
+			height: 32px;
+			border-radius: 999px;
+			background: #fff;
+			border: 1px solid var(--border);
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--muted);
+			font-weight: 800;
+		}
+
+		.card-footer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.availability {
+			padding: 8px 10px;
+			border-radius: 999px;
+			background: #e9f9ef;
+			color: var(--success);
+			font-size: 0.8rem;
+			font-weight: 800;
+		}
+
+		.availability.low {
+			background: #fff1ea;
+			color: #cf5b3a;
+		}
+
+		.availability.medium {
+			background: #fff8e8;
+			color: #a56200;
+		}
+
+		.cta-link {
+			color: var(--brand);
+			font-size: 0.84rem;
+			font-weight: 800;
+		}
+
+		.legend {
+			display: flex;
+			gap: 8px;
+			overflow-x: auto;
+			padding-bottom: 2px;
+		}
+
+		.legend-item {
+			min-width: 128px;
+			flex: 0 0 auto;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 999px;
+			padding: 10px 12px;
+			box-shadow: 0 8px 20px rgba(16, 32, 51, 0.04);
+			font-size: 0.8rem;
+			font-weight: 700;
+			color: #415264;
+			white-space: nowrap;
+		}
+
+		.seat-dot {
+			width: 18px;
+			height: 18px;
+			border-radius: 6px;
+			border: 1px solid transparent;
+		}
+
+		.seat-dot.available {
+			background: var(--available);
+			border-color: #d8dfeb;
+		}
+
+		.seat-dot.selected {
+			background: var(--selected);
+		}
+
+		.seat-dot.booked {
+			background: var(--booked);
+		}
+
+		.bus-cabin {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 28px;
+			padding: 16px;
+			box-shadow: 0 12px 30px rgba(16, 32, 51, 0.06);
+			display: grid;
+			gap: 14px;
+			align-content: start;
+		}
+
+		.bus-top {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			padding: 4px 2px 10px;
+			border-bottom: 1px solid #edf1f7;
+		}
+
+		.bus-top strong {
+			font-size: 0.96rem;
+		}
+
+		.bus-top span {
+			color: var(--muted);
+			font-size: 0.8rem;
+			font-weight: 700;
+		}
+
+		.seat-grid {
+			display: grid;
+			gap: 10px;
+			align-content: start;
+		}
+
+		.seat-row {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr) 18px 1fr;
+			gap: 10px;
+			align-items: center;
+		}
+
+		.seat-row .aisle {
+			height: 100%;
+			min-height: 8px;
+		}
+
+		.seat {
+			height: 54px;
+			border: 1px solid transparent;
+			border-radius: 14px;
+			font-weight: 800;
+			font-size: 0.85rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			letter-spacing: 0.01em;
+			user-select: none;
+		}
+
+		.seat.available {
+			background: var(--available);
+			border-color: #d8dfeb;
+			color: var(--available-text);
+			cursor: pointer;
+		}
+
+		.seat.selected {
+			background: var(--selected);
+			color: var(--selected-text);
+			box-shadow: 0 12px 18px rgba(48, 79, 254, 0.22);
+			cursor: pointer;
+		}
+
+		.seat.booked {
+			background: var(--booked);
+			color: var(--booked-text);
+			cursor: not-allowed;
+			opacity: 0.95;
+		}
+
+		.seat.selected::after,
+		.seat.booked::after {
+			content: "";
+			position: absolute;
+		}
+
+		.seat-wrap {
+			position: relative;
+		}
+
+		.seat-wrap .seat {
+			position: relative;
+		}
+
+		.seat-wrap .seat small {
+			display: block;
+			font-size: 0.72rem;
+			font-weight: 700;
+			opacity: 0.8;
+		}
+
+		.seat-hint {
+			color: var(--muted);
+			font-size: 0.78rem;
+			line-height: 1.45;
+			padding-top: 2px;
+		}
+
+		.checkout {
+			position: sticky;
+			bottom: 0;
+			margin-top: auto;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), #ffffff 22%);
+			border-top: 1px solid #edf1f7;
+			backdrop-filter: blur(10px);
+			padding: 14px 16px 18px;
+			display: grid;
+			gap: 10px;
+			box-shadow: 0 -14px 28px rgba(16, 32, 51, 0.08);
+		}
+
+		.checkout-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 12px;
+			font-size: 0.9rem;
+		}
+
+		.checkout-row strong {
+			font-size: 1rem;
+		}
+
+		.checkout-row span {
+			color: var(--muted);
+		}
+
+		.seat-summary {
+			color: var(--text);
+			font-weight: 700;
+		}
+
+		.fare {
+			color: var(--brand-dark);
+			font-weight: 900;
+		}
+
+		.footer-note {
+			color: var(--muted);
+			font-size: 0.76rem;
+			text-align: center;
+		}
+
+		.spec-panel {
+			background: rgba(255, 255, 255, 0.7);
+			border: 1px solid rgba(228, 233, 242, 0.9);
+			border-radius: 20px;
+			padding: 14px 16px;
+			display: grid;
+			gap: 8px;
+		}
+
+		.spec-panel h4 {
+			margin: 0;
+			font-size: 0.95rem;
+		}
+
+		.spec-panel ul {
+			margin: 0;
+			padding-left: 18px;
+			color: var(--muted);
+			line-height: 1.5;
+			font-size: 0.9rem;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(8px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@media (max-width: 420px) {
+			.mobile-frame {
+				border-radius: 26px;
+			}
+
+			.screen {
+				padding-inline: 12px;
+			}
+
+			.trip-row {
+				grid-template-columns: 1fr;
+			}
+
+			.trip-arrow {
+				display: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<section class="design-notes">
+			<h1>Bus Ticket Booking System - High Fidelity Prototype</h1>
+			<p>
+				Two mobile screens are included: bus search/results and seat selection. The file is self-contained,
+				suitable for visual mapping, and can be opened directly in a browser.
+			</p>
+			<div class="token-row" aria-label="design tokens">
+				<span class="token">Primary Indigo</span>
+				<span class="token">Surface White</span>
+				<span class="token">Available Grey</span>
+				<span class="token">Selected Blue</span>
+				<span class="token">Booked Coral</span>
+				<span class="token">8px Grid</span>
+			</div>
+		</section>
+
+		<section class="mobile-frame" aria-label="mobile app prototype">
+			<div class="status-bar">
+				<span>9:41</span>
+				<span>LTE  100%</span>
+			</div>
+
+			<div class="app-shell">
+				<section class="screen active" id="screenSearch" aria-label="Bus Search and Results">
+					<header class="header">
+						<div class="header-left">
+							<div class="title-block">
+								<h2>Book Your Ride</h2>
+								<p>Search intercity bus options</p>
+							</div>
+						</div>
+						<button class="avatar" type="button" aria-label="User profile">U</button>
+					</header>
+
+					<section class="search-card" aria-label="search panel">
+						<p class="panel-label">Plan your trip</p>
+						<div class="field">
+							<label for="fromField">From</label>
+							<div class="input"><span id="fromField">Chennai</span></div>
+						</div>
+						<div class="field">
+							<label for="toField">To</label>
+							<div class="input"><span id="toField">Bangalore</span></div>
+						</div>
+						<div class="field">
+							<label for="dateField">Departure Date</label>
+							<div class="date-picker" id="dateField"><span>Thu, 17 Jul 2026</span><strong>📅</strong></div>
+						</div>
+						<button class="search-button" type="button">Search Buses</button>
+					</section>
+
+					<section class="results" aria-label="bus results">
+						<div class="section-title">
+							<h3>Available Buses</h3>
+							<span>2 results</span>
+						</div>
+
+						<article class="result-card">
+							<div class="result-top">
+								<div>
+									<p class="operator">Titan Travels (AC Sleeper 2+1)</p>
+									<p class="bus-type">Premium overnight service</p>
+								</div>
+								<div class="price-chip">₹899</div>
+							</div>
+							<div class="trip-row">
+								<div class="trip-time">
+									<span>Departure</span>
+									<strong>08:15 AM</strong>
+								</div>
+								<div class="trip-arrow">→</div>
+								<div class="trip-time" style="text-align:right;">
+									<span>Arrival · 8h 15m</span>
+									<strong>04:30 PM</strong>
+								</div>
+							</div>
+							<div class="card-footer">
+								<span class="availability">14 Seats Available</span>
+								<span class="cta-link">View seats</span>
+							</div>
+						</article>
+
+						<article class="result-card">
+							<div class="result-top">
+								<div>
+									<p class="operator">Skyline Express (Volvo Multi-Axle)</p>
+									<p class="bus-type">Comfort class with AC and charging</p>
+								</div>
+								<div class="price-chip">₹1,249</div>
+							</div>
+							<div class="trip-row">
+								<div class="trip-time">
+									<span>Departure</span>
+									<strong>09:45 PM</strong>
+								</div>
+								<div class="trip-arrow">→</div>
+								<div class="trip-time" style="text-align:right;">
+									<span>Arrival · 8h 25m</span>
+									<strong>06:10 AM</strong>
+								</div>
+							</div>
+							<div class="card-footer">
+								<span class="availability medium">6 Seats Available</span>
+								<span class="cta-link">View seats</span>
+							</div>
+						</article>
+					</section>
+				</section>
+
+				<section class="screen" id="screenSeats" aria-label="Visual Seat Selection">
+					<header class="header">
+						<div class="header-left">
+							<button class="icon-btn" type="button" id="backButton" aria-label="Back to search">←</button>
+							<div class="title-block">
+								<h2>Select Seats</h2>
+								<p>Choose available seats for booking</p>
+							</div>
+						</div>
+						<button class="avatar" type="button" aria-label="Bus profile">B</button>
+					</header>
+
+					<section class="legend" aria-label="seat status legend">
+						<div class="legend-item"><span class="seat-dot available"></span> Available</div>
+						<div class="legend-item"><span class="seat-dot selected"></span> Selected</div>
+						<div class="legend-item"><span class="seat-dot booked"></span> Booked</div>
+					</section>
+
+					<section class="bus-cabin" aria-label="bus interior layout">
+						<div class="bus-top">
+							<strong>Titan Travels</strong>
+							<span>AC Sleeper 2+1</span>
+						</div>
+
+						<div class="seat-grid" id="seatGrid"></div>
+
+						<p class="seat-hint">
+							Tap an available seat to select it. Booked seats are disabled and remain unavailable.
+						</p>
+					</section>
+
+					<footer class="checkout" aria-label="checkout footer">
+						<div class="checkout-row">
+							<span>Selected Seats</span>
+							<strong class="seat-summary" id="selectedSeatsText">Seat: 1B, 2A</strong>
+						</div>
+						<div class="checkout-row">
+							<span>Total Fare</span>
+							<strong class="fare" id="fareText">₹1,798</strong>
+						</div>
+						<button class="payment-button" type="button">Proceed to Payment</button>
+						<div class="footer-note">Sticky checkout bar sized for thumb reach and quick confirmation.</div>
+					</footer>
+				</section>
+			</div>
+		</section>
+
+		<section class="spec-panel">
+			<h4>Layout Spec Snapshot</h4>
+			<ul>
+				<li>Screen 1 keeps a clean search card followed by two result cards.</li>
+				<li>Screen 2 uses a three-state seat legend, 2+1 cabin grid, and sticky checkout footer.</li>
+				<li>Booked seats are coral/red, selected seats are indigo/blue, and available seats are neutral grey.</li>
+			</ul>
+		</section>
+	</main>
+
+	<script>
+		const screenSearch = document.getElementById("screenSearch");
+		const screenSeats = document.getElementById("screenSeats");
+		const backButton = document.getElementById("backButton");
+		const seatGrid = document.getElementById("seatGrid");
+		const selectedSeatsText = document.getElementById("selectedSeatsText");
+		const fareText = document.getElementById("fareText");
+
+		const seatRows = [
+			{ left: ["1A", "1B"], right: "1C" },
+			{ left: ["2A", "2B"], right: "2C" },
+			{ left: ["3A", "3B"], right: "3C" },
+			{ left: ["4A", "4B"], right: "4C" },
+			{ left: ["5A", "5B"], right: "5C" },
+			{ left: ["6A", "6B"], right: "6C" },
+		];
+
+		const bookedSeats = new Set(["1A", "2B", "4C", "5A"]);
+		const selectedSeats = new Set(["1B", "2A"]);
+		const farePerSeat = 899;
+
+		function showScreen(screen) {
+			screenSearch.classList.toggle("active", screen === "search");
+			screenSeats.classList.toggle("active", screen === "seats");
+		}
+
+		function updateCheckout() {
+			const selected = Array.from(selectedSeats);
+			selectedSeatsText.textContent = selected.length ? `Seat: ${selected.join(", ")}` : "Seat: None";
+			fareText.textContent = `₹${selected.length * farePerSeat}`;
+		}
+
+		function renderSeatGrid() {
+			seatGrid.innerHTML = "";
+
+			seatRows.forEach((row) => {
+				const rowEl = document.createElement("div");
+				rowEl.className = "seat-row";
+
+				row.left.forEach((seatNumber) => {
+					rowEl.appendChild(createSeat(seatNumber));
+				});
+
+				const aisle = document.createElement("div");
+				aisle.className = "aisle";
+				rowEl.appendChild(aisle);
+
+				rowEl.appendChild(createSeat(row.right));
+				seatGrid.appendChild(rowEl);
+			});
+		}
+
+		function createSeat(seatNumber) {
+			const wrapper = document.createElement("div");
+			wrapper.className = "seat-wrap";
+
+			const seat = document.createElement("button");
+			seat.type = "button";
+			seat.className = "seat";
+			seat.textContent = seatNumber;
+			seat.dataset.seat = seatNumber;
+
+			if (bookedSeats.has(seatNumber)) {
+				seat.classList.add("booked");
+				seat.disabled = true;
+			} else if (selectedSeats.has(seatNumber)) {
+				seat.classList.add("selected");
+			} else {
+				seat.classList.add("available");
+			}
+
+			seat.addEventListener("click", () => {
+				if (bookedSeats.has(seatNumber)) return;
+
+				if (selectedSeats.has(seatNumber)) {
+					selectedSeats.delete(seatNumber);
+				} else {
+					selectedSeats.add(seatNumber);
+				}
+
+				renderSeatGrid();
+				updateCheckout();
+			});
+
+			wrapper.appendChild(seat);
+			return wrapper;
+		}
+
+		backButton.addEventListener("click", () => showScreen("search"));
+
+		document.querySelectorAll(".availability, .cta-link").forEach((element) => {
+			element.addEventListener("click", () => showScreen("seats"));
+		});
+
+		document.querySelector(".search-button").addEventListener("click", () => showScreen("seats"));
+
+		renderSeatGrid();
+		updateCheckout();
+	</script>
+</body>
+</html>
