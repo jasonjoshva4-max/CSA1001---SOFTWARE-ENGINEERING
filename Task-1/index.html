@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Software Engineering Kanban Board</title>
+  <style>
+    :root {
+      --bg: #08131f;
+      --bg-2: #0e1f2f;
+      --panel: rgba(10, 24, 36, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text: #e9f1f7;
+      --muted: #9fb3c8;
+      --todo: #5bc0be;
+      --doing: #f4a261;
+      --done: #7dd36f;
+      --accent: #ffd166;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(91, 192, 190, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(244, 162, 97, 0.14), transparent 28%),
+        linear-gradient(160deg, var(--bg), var(--bg-2));
+    }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.05;
+      max-width: 12ch;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 22px 0 28px;
+    }
+
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #07131f;
+      background: linear-gradient(135deg, #ffe082, #ffd166);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      box-shadow: none;
+    }
+
+    .button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .column {
+      min-height: 640px;
+      padding: 18px;
+      border-radius: 22px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .column-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .column-header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+    }
+
+    .count {
+      min-width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #04111a;
+    }
+
+    .todo .count {
+      background: var(--todo);
+    }
+
+    .doing .count {
+      background: var(--doing);
+    }
+
+    .done .count {
+      background: var(--done);
+    }
+
+    .dropzone {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 560px;
+    }
+
+    .dropzone.drag-over {
+      outline: 2px dashed rgba(255, 255, 255, 0.28);
+      outline-offset: 8px;
+      border-radius: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      cursor: grab;
+      animation: pop 0.35s ease both;
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.3;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge.todo {
+      background: rgba(91, 192, 190, 0.18);
+      color: #8ef0ee;
+    }
+
+    .badge.doing {
+      background: rgba(244, 162, 97, 0.2);
+      color: #ffd0a2;
+    }
+
+    .badge.done {
+      background: rgba(125, 211, 111, 0.18);
+      color: #b6f5a8;
+    }
+
+    .details {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font-size: 0.78rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-action {
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      color: #07131f;
+      background: #bff0df;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .card-action.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .card-action:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .card-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .empty-state {
+      margin-top: 14px;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .log {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--panel-border);
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .log strong {
+      color: var(--text);
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .column {
+        min-height: auto;
+      }
+
+      .status {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="eyebrow">Software Engineering Lab Task</div>
+      <h1>Kanban Board Workflow Simulation</h1>
+      <p class="subtitle">
+        This board uses exactly three workflow columns to show a realistic software development pipeline.
+        Use the buttons to move tasks manually or run the full lifecycle simulation to watch all five tasks
+        progress from <strong>To Do</strong> to <strong>In-Progress</strong> and then <strong>Done</strong>.
+      </p>
+    </section>
+
+    <div class="toolbar">
+      <button class="button" id="runSimulation">Run Lifecycle Simulation</button>
+      <button class="button secondary" id="resetBoard">Reset Board</button>
+      <span class="status" id="statusText">Ready for manual moves or simulation.</span>
+    </div>
+
+    <section class="board" aria-label="Kanban board">
+      <div class="column todo">
+        <div class="column-header">
+          <h2>To Do</h2>
+          <span class="count" id="todoCount">0</span>
+        </div>
+        <div class="dropzone" data-column="todo" id="todoLane"></div>
+      </div>
+
+      <div class="column doing">
+        <div class="column-header">
+          <h2>In-Progress</h2>
+          <span class="count" id="doingCount">0</span>
+        </div>
+        <div class="dropzone" data-column="doing" id="doingLane"></div>
+      </div>
+
+      <div class="column done">
+        <div class="column-header">
+          <h2>Done</h2>
+          <span class="count" id="doneCount">0</span>
+        </div>
+        <div class="dropzone" data-column="done" id="doneLane"></div>
+      </div>
+    </section>
+
+    <section class="log" id="logPanel" aria-live="polite">
+      Task log: move items manually with the action buttons, or use the simulation button to demonstrate the full workflow.
+    </section>
+  </main>
+
+  <script>
+    const initialTasks = [
+      {
+        id: 1,
+        title: "Requirements Gathering",
+        details: "Interview stakeholders and document the expected system behavior.",
+        tag: "Analysis",
+        stage: "todo",
+      },
+      {
+        id: 2,
+        title: "UI Wireframing",
+        details: "Sketch the interface layout and confirm the user journey before coding.",
+        tag: "Design",
+        stage: "todo",
+      },
+      {
+        id: 3,
+        title: "Database Schema Design",
+        details: "Define entities, keys, and relationships for the application data model.",
+        tag: "Backend",
+        stage: "todo",
+      },
+      {
+        id: 4,
+        title: "Unit Testing",
+        details: "Write automated tests for core functions and verify expected outputs.",
+        tag: "Quality",
+        stage: "todo",
+      },
+      {
+        id: 5,
+        title: "CI/CD Setup",
+        details: "Configure build and deployment automation for repeatable releases.",
+        tag: "DevOps",
+        stage: "todo",
+      },
+    ];
+
+    const lanes = {
+      todo: document.getElementById("todoLane"),
+      doing: document.getElementById("doingLane"),
+      done: document.getElementById("doneLane"),
+    };
+
+    const statusText = document.getElementById("statusText");
+    const logPanel = document.getElementById("logPanel");
+    const runButton = document.getElementById("runSimulation");
+    const resetButton = document.getElementById("resetBoard");
+    const counts = {
+      todo: document.getElementById("todoCount"),
+      doing: document.getElementById("doingCount"),
+      done: document.getElementById("doneCount"),
+    };
+
+    let tasks = structuredClone(initialTasks);
+    let simulationRunning = false;
+
+    function stageLabel(stage) {
+      if (stage === "todo") return "To Do";
+      if (stage === "doing") return "In-Progress";
+      return "Done";
+    }
+
+    function updateLog(message) {
+      logPanel.innerHTML = `<strong>Task log:</strong> ${message}`;
+    }
+
+    function moveTask(id) {
+      const task = tasks.find((item) => item.id === id);
+      if (!task || task.stage === "done") {
+        return;
+      }
+
+      task.stage = task.stage === "todo" ? "doing" : "done";
+      updateLog(`Task <strong>${task.title}</strong> moved to <strong>${stageLabel(task.stage)}</strong>.`);
+      renderBoard();
+    }
+
+    function renderBoard() {
+      Object.values(lanes).forEach((lane) => {
+        lane.innerHTML = "";
+      });
+
+      runButton.disabled = simulationRunning;
+      resetButton.disabled = simulationRunning;
+
+      const groupedTasks = {
+        todo: tasks.filter((task) => task.stage === "todo"),
+        doing: tasks.filter((task) => task.stage === "doing"),
+        done: tasks.filter((task) => task.stage === "done"),
+      };
+
+      Object.entries(groupedTasks).forEach(([stage, items]) => {
+        counts[stage].textContent = String(items.length);
+
+        if (items.length === 0) {
+          const emptyState = document.createElement("div");
+          emptyState.className = "empty-state";
+          emptyState.textContent = "No tasks in this column yet.";
+          lanes[stage].appendChild(emptyState);
+          return;
+        }
+
+        items.forEach((task) => {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.draggable = true;
+          card.dataset.id = task.id;
+
+          card.addEventListener("dragstart", (event) => {
+            event.dataTransfer.setData("text/plain", String(task.id));
+          });
+
+          const actionLabel = task.stage === "todo" ? "Start Work" : task.stage === "doing" ? "Mark Done" : "Completed";
+          const actionDestination = task.stage === "todo" ? "doing" : "done";
+          const actionDisabled = task.stage === "done" || simulationRunning;
+          const previewLabel = task.stage === "done" ? "Workflow complete" : `Next: ${stageLabel(actionDestination)}`;
+
+          card.innerHTML = `
+            <div class="card-header">
+              <div>
+                <h3>${task.title}</h3>
+              </div>
+              <span class="badge ${task.stage}">${stageLabel(task.stage)}</span>
+            </div>
+            <p class="details">${task.details}</p>
+            <div class="meta">
+              <span class="tag">${task.tag}</span>
+              <span class="tag">Task #${task.id}</span>
+            </div>
+            <div class="card-actions">
+              <button class="card-action" data-action="advance" data-id="${task.id}" ${actionDisabled ? "disabled" : ""}>${actionLabel}</button>
+              <button class="card-action secondary" data-action="preview" data-stage="${actionDestination}" ${actionDisabled ? "disabled" : ""}>${previewLabel}</button>
+            </div>
+          `;
+
+          lanes[stage].appendChild(card);
+        });
+      });
+
+      document.querySelectorAll('[data-action="advance"]').forEach((button) => {
+        button.addEventListener("click", () => moveTask(Number(button.dataset.id)));
+      });
+
+      document.querySelectorAll('[data-action="preview"]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.stage;
+          const stageName = stageLabel(target);
+          updateLog(`Next step is <strong>${stageName}</strong>. Use the main action button to move a task there.`);
+        });
+      });
+
+      document.querySelectorAll(".dropzone").forEach((zone) => {
+        zone.addEventListener("dragover", (event) => event.preventDefault());
+        zone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          const taskId = Number(event.dataTransfer.getData("text/plain"));
+          const task = tasks.find((item) => item.id === taskId);
+          if (!task) return;
+
+          if (zone.dataset.column === "doing" && task.stage === "todo") {
+            task.stage = "doing";
+          } else if (zone.dataset.column === "done" && task.stage === "doing") {
+            task.stage = "done";
+          } else if (zone.dataset.column === "todo") {
+            task.stage = "todo";
+          }
+
+          updateLog(`Task <strong>${task.title}</strong> moved to <strong>${stageLabel(task.stage)}</strong> by drag and drop.`);
+          renderBoard();
+        });
+      });
+    }
+
+    async function runSimulation() {
+      if (simulationRunning) {
+        return;
+      }
+
+      simulationRunning = true;
+      statusText.textContent = "Simulation running...";
+      updateLog("Running the lifecycle simulation across all five tasks.");
+
+      tasks = structuredClone(initialTasks);
+      renderBoard();
+
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+      for (const task of tasks) {
+        await delay(700);
+        task.stage = "doing";
+        updateLog(`Task <strong>${task.title}</strong> moved to <strong>In-Progress</strong>.`);
+        renderBoard();
+
+        await delay(700);
+        task.stage = "done";
+        updateLog(`Task <strong>${task.title}</strong> moved to <strong>Done</strong>.`);
+        renderBoard();
+      }
+
+      statusText.textContent = "Simulation complete. All tasks are finished.";
+      simulationRunning = false;
+      renderBoard();
+    }
+
+    function resetBoard() {
+      tasks = structuredClone(initialTasks);
+      statusText.textContent = "Board reset to the starting state.";
+      updateLog("Board reset. All tasks are back in <strong>To Do</strong>.");
+      renderBoard();
+    }
+
+    runButton.addEventListener("click", runSimulation);
+    resetButton.addEventListener("click", resetBoard);
+
+    renderBoard();
+  </script>
+</body>
+</html>
