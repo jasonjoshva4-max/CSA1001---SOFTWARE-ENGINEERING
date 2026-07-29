@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4 — String Handling & Character Array Simulator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --highlight: #f59e0b;
+            --success: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        header h1 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-box .num {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-box .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Character Array Visualizer */
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .char-box {
+            background: #0f172a;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            width: 45px;
+            height: 55px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .char-box .char {
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .char-box .index {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Flowchart Simulator Block */
+        .flowchart-step {
+            background: #0f172a;
+            border-left: 4px solid var(--accent);
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .flowchart-step .title {
+            font-weight: bold;
+            color: var(--highlight);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .concept-note {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--highlight);
+            color: #fde68a;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Task 4 — String Handling & Character Array Simulator</h1>
+        <p>Interactive demonstration of string length calculation, char array mapping, and immutable memory behavior</p>
+    </header>
+
+    <div class="grid">
+        <!-- Interactive Input & Analysis Card -->
+        <div class="card">
+            <h2>String Input & Analysis</h2>
+            
+            <div class="input-group">
+                <label for="stringInput">Enter a String Sequence:</label>
+                <input type="text" id="stringInput" value="Software 2026" placeholder="Type anything here..." oninput="analyzeString()">
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="num" id="totalCharCount">0</div>
+                    <div class="label">Total Characters</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="alphaCount">0</div>
+                    <div class="label">Letters</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="digitCount">0</div>
+                    <div class="label">Digits & Symbols</div>
+                </div>
+            </div>
+
+            <div class="concept-note">
+                <strong>🔒 Concept: String Immutability</strong><br>
+                Strings are immutable. When you edit the input above, an entirely new string sequence is created in memory rather than modifying the old one in place.
+            </div>
+        </div>
+
+        <!-- Character Array Visualization -->
+        <div class="card">
+            <h2>Character Array (`char[]`) Representation</h2>
+            <p style="font-size:0.85rem; color: var(--text-muted);">Below is how the string is stored sequentially as individual characters in an array:</p>
+            
+            <div class="array-container" id="arrayVisualizer">
+                <!-- Dynamically generated char boxes -->
+            </div>
+        </div>
+
+        <!-- Raptor Flowchart Trace Engine -->
+        <div class="card" style="grid-column: span 2;">
+            <h2>Raptor Flowchart Execution Simulator</h2>
+            
+            <div class="flowchart-step">
+                <div class="title">Step 1: Input Symbol</div>
+                <div id="stepInput">Input variable <code>user_string</code> = "Software 2026"</div>
+            </div>
+
+            <div class="flowchart-step">
+                <div class="title">Step 2: Assignment Symbol</div>
+                <div id="stepAssign">Assignment: <code>char_count = Length_Of(user_string)</code> &rarr; <strong>13</strong></div>
+            </div>
+
+            <div class="flowchart-step">
+                <div class="title">Step 3: Output Symbol</div>
+                <div id="stepOutput">Output: "Total number of characters in the string: 13"</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function analyzeString() {
+        const str = document.getElementById('stringInput').value;
+        const total = str.length;
+        
+        // Count letters vs digits/symbols
+        let letters = 0;
+        let digitsAndSymbols = 0;
+
+        for (let char of str) {
+            if (/[a-zA-Z]/.test(char)) {
+                letters++;
+            } else {
+                digitsAndSymbols++;
+            }
+        }
+
+        // Update statistics
+        document.getElementById('totalCharCount').innerText = total;
+        document.getElementById('alphaCount').innerText = letters;
+        document.getElementById('digitCount').innerText = digitsAndSymbols;
+
+        // Render Character Array Visualizer
+        const arrayContainer = document.getElementById('arrayVisualizer');
+        arrayContainer.innerHTML = '';
+
+        if (str.length === 0) {
+            arrayContainer.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">Array is empty. Type a string above.</span>';
+        } else {
+            for (let i = 0; i < str.length; i++) {
+                const charBox = document.createElement('div');
+                charBox.className = 'char-box';
+                
+                const charVal = str[i] === ' ' ? '␣' : str[i]; // Show space clearly
+                
+                charBox.innerHTML = `
+                    <div class="char">${escapeHtml(charVal)}</div>
+                    <div class="index">[${i}]</div>
+                `;
+                arrayContainer.appendChild(charBox);
+            }
+        }
+
+        // Update Raptor Flowchart Trace
+        const escapedStr = escapeHtml(str);
+        document.getElementById('stepInput').innerHTML = `Input variable <code>user_string</code> = "${escapedStr}"`;
+        document.getElementById('stepAssign').innerHTML = `Assignment: <code>char_count = Length_Of(user_string)</code> &rarr; <strong>${total}</strong>`;
+        document.getElementById('stepOutput').innerHTML = `Output: "Total number of characters in the string: ${total}"`;
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    // Initial run on page load
+    analyzeString();
+</script>
+
+</body>
+</html>
