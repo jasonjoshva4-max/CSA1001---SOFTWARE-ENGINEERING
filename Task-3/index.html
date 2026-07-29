@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopVista Mobile — Stakeholder Review System</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --bg-2: #0d1727;
+      --surface: rgba(11, 20, 34, 0.88);
+      --surface-2: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #edf4fb;
+      --muted: #9eb0c5;
+      --brand: #ffb36b;
+      --brand-2: #6fe3c4;
+      --accent: #7ca5ff;
+      --warning: #ffdd77;
+      --success: #78e08f;
+      --danger: #ff8b8b;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 179, 107, 0.12), transparent 30%),
+        radial-gradient(circle at 85% 10%, rgba(124, 165, 255, 0.15), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(111, 227, 196, 0.11), transparent 24%),
+        linear-gradient(160deg, var(--bg), var(--bg-2));
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 92%);
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--warning);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.15rem, 4.5vw, 4.1rem);
+      line-height: 0.98;
+      max-width: 11ch;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.65;
+    }
+
+    .banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255, 179, 107, 0.15), rgba(124, 165, 255, 0.12));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .banner strong {
+      display: inline-flex;
+      width: 30px;
+      height: 30px;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .banner p {
+      margin: 0;
+      color: #f4f8fc;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      margin: 30px 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(1.2rem, 1.9vw, 1.6rem);
+    }
+
+    .section-title p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .variant-card,
+    .feedback-card,
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    .variant-card {
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .variant-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .variant-header h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .variant-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .phone-shell {
+      position: relative;
+      border-radius: 36px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .phone-notch {
+      width: 36%;
+      height: 28px;
+      margin: 0 auto 8px;
+      border-radius: 0 0 18px 18px;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .phone {
+      min-height: 780px;
+      border-radius: 30px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fdfefe 0%, #f2f6fb 100%);
+      color: #122033;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 18px 0;
+      color: #637286;
+      font-size: 0.77rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .phone-body {
+      padding: 14px 14px 16px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid #e6ecf5;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 14px 28px rgba(18, 32, 51, 0.07);
+    }
+
+    .search-pill {
+      flex: 1;
+      height: 46px;
+      border-radius: 16px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f4f7fc;
+      color: #6d7b8d;
+      font-size: 0.92rem;
+      min-width: 0;
+    }
+
+    .search-pill span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .icon-group {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f7fc;
+      color: #1d2d45;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 168px;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 16px 30px rgba(18, 32, 51, 0.09);
+      background: linear-gradient(135deg, #102337 0%, #17314f 42%, #7f8cff 100%);
+      color: #fff;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -32px auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      filter: blur(2px);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      padding: 18px;
+    }
+
+    .hero-content h4 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.05;
+      max-width: 10ch;
+    }
+
+    .hero-content p {
+      margin: 0;
+      max-width: 23ch;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .deal-chip,
+    .countdown-chip,
+    .badge,
+    .stock {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .deal-chip {
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .countdown-chip {
+      padding: 8px 11px;
+      color: #102033;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .hero-carousel {
+      display: grid;
+      gap: 10px;
+    }
+
+    .hero-controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(31, 46, 68, 0.2);
+      cursor: pointer;
+    }
+
+    .hero-dot.active {
+      width: 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--brand));
+    }
+
+    .category-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .category-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-pill {
+      flex: 0 0 auto;
+      border: 1px solid #e3e9f3;
+      background: #fff;
+      color: #1d2d45;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+
+    .category-pill.active {
+      background: linear-gradient(135deg, #111d31, #1a3356);
+      color: #fff;
+      border-color: transparent;
+      transform: translateY(-1px);
+    }
+
+    .catalog {
+      display: grid;
+      gap: 12px;
+    }
+
+    .catalog.minimal {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .catalog.discovery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .product-card {
+      border-radius: 22px;
+      padding: 12px;
+      border: 1px solid #e4eaf3;
+      background: linear-gradient(180deg, #ffffff, #f7f9fc);
+      box-shadow: 0 12px 22px rgba(18, 32, 51, 0.06);
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .product-card.featured {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card.featured::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--brand), var(--brand-2));
+    }
+
+    .product-card .media {
+      height: 118px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(124, 165, 255, 0.22), rgba(111, 227, 196, 0.2));
+      display: grid;
+      place-items: center;
+      color: #17314f;
+      font-size: 2rem;
+      font-weight: 800;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card .media::after {
+      content: "";
+      position: absolute;
+      inset: auto -18px -22px auto;
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .product-card.featured .media {
+      background: linear-gradient(135deg, rgba(255, 179, 107, 0.22), rgba(124, 165, 255, 0.24));
+    }
+
+    .product-card h5 {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.35;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .price {
+      font-size: 1.07rem;
+      font-weight: 800;
+      color: #111d31;
+    }
+
+    .stars {
+      color: #f8b84e;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+    }
+
+    .action-button {
+      height: 42px;
+      border: 0;
+      border-radius: 14px;
+      padding: 0 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #102033;
+      background: linear-gradient(135deg, #ffe29e, #ffb36b);
+      box-shadow: 0 10px 20px rgba(255, 179, 107, 0.25);
+    }
+
+    .action-button.secondary {
+      background: linear-gradient(135deg, #111d31, #1d3557);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(17, 29, 49, 0.18);
+    }
+
+    .feature-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      color: #102033;
+      background: rgba(17, 29, 49, 0.06);
+    }
+
+    .badge.trending {
+      color: #fff;
+      background: linear-gradient(135deg, #1a3356, #7ca5ff);
+    }
+
+    .stock {
+      padding: 7px 10px;
+      background: rgba(120, 224, 143, 0.12);
+      color: #166534;
+    }
+
+    .stock.low {
+      background: rgba(255, 139, 139, 0.12);
+      color: #9f1239;
+    }
+
+    .swatches {
+      display: flex;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(17, 29, 49, 0.15);
+    }
+
+    .swatch.blue { background: #4f7cff; }
+    .swatch.peach { background: #ffba93; }
+    .swatch.green { background: #48d39c; }
+    .swatch.charcoal { background: #243042; }
+
+    .heart-toggle {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255, 139, 139, 0.12);
+      color: #cf3d5f;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .feedback-card,
+    .summary-card {
+      padding: 18px;
+    }
+
+    .feedback-card h2,
+    .summary-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.18rem;
+    }
+
+    .feedback-card p,
+    .summary-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .control-group label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #dfe9f6;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      padding: 14px 16px;
+      font: inherit;
+      outline: none;
+    }
+
+    .field-textarea {
+      min-height: 128px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+      color: #8d9eb2;
+    }
+
+    .voting-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .vote-card {
+      position: relative;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .vote-card:hover {
+      transform: translateY(-1px);
+    }
+
+    .vote-card input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .vote-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+
+    .vote-card span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .vote-card.active {
+      border-color: rgba(255, 179, 107, 0.8);
+      background: linear-gradient(135deg, rgba(255, 179, 107, 0.12), rgba(124, 165, 255, 0.1));
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .primary-button,
+    .secondary-button {
+      height: 50px;
+      border-radius: 16px;
+      border: 0;
+      padding: 0 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary-button {
+      color: #102033;
+      background: linear-gradient(135deg, #ffe29e, #ffb36b);
+      box-shadow: 0 14px 28px rgba(255, 179, 107, 0.28);
+    }
+
+    .secondary-button {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .summary-tools {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 0;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .metric {
+      display: grid;
+      gap: 4px;
+    }
+
+    .metric strong {
+      font-size: 1.2rem;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    thead {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: #e8f0f8;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    td {
+      color: #dce7f3;
+      line-height: 1.55;
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .status-approved { background: rgba(120, 224, 143, 0.14); color: #8ff0a5; }
+    .status-needs-revision { background: rgba(255, 221, 119, 0.14); color: #ffe08c; }
+    .status-rejected { background: rgba(255, 139, 139, 0.14); color: #ffb1b1; }
+
+    .empty-state {
+      padding: 16px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero,
+    .variant-card,
+    .feedback-card,
+    .summary-card {
+      animation: floatIn 0.45s ease both;
+    }
+
+    .variant-card:nth-child(2) {
+      animation-delay: 0.05s;
+    }
+
+    .feedback-card {
+      animation-delay: 0.08s;
+    }
+
+    .summary-card {
+      animation-delay: 0.12s;
+    }
+
+    @media (max-width: 1180px) {
+      .comparison,
+      .feedback-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phone {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .page {
+        padding: 18px 14px 30px;
+      }
+
+      .banner {
+        flex-direction: column;
+      }
+
+      .catalog.minimal,
+      .catalog.discovery,
+      .voting-cards {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        max-width: none;
+      }
+
+      .phone-shell {
+        padding: 9px;
+      }
+
+      .phone-body {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">E-Commerce Mobile UI Review</div>
+      <h1>ShopVista Mobile — Stakeholder Review System</h1>
+      <p class="subtitle">E-Commerce Mobile UI Prototype Variants for Feedback &amp; Approval</p>
+      <div class="banner">
+        <strong>i</strong>
+        <p>Compare Variant A (Minimalist/Direct) vs Variant B (Rich/Discovery-Focused) to align on final production design.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <h2>Side-by-Side Mobile Frame Prototypes</h2>
+        <p>Two competing directions, framed as mobile screens for stakeholder review.</p>
+      </div>
+
+      <div class="comparison">
+        <article class="variant-card">
+          <div class="variant-header">
+            <div>
+              <h3>Mobile Frame 1: Variant A — Minimalist &amp; Direct</h3>
+              <p>Optimized for efficiency, readability, and the fastest checkout path.</p>
+            </div>
+            <span class="pill">Targeting Efficiency</span>
+          </div>
+
+          <div class="phone-shell">
+            <div class="phone-notch"></div>
+            <div class="phone">
+              <div class="status-bar">
+                <span>9:41</span>
+                <span>5G  ▮▮▮  92%</span>
+              </div>
+              <div class="phone-body">
+                <div class="header-bar">
+                  <div class="search-pill">
+                    <span>Search products, brands, categories</span>
+                  </div>
+                  <div class="icon-group">
+                    <button class="icon-btn" type="button" aria-label="Cart">🛒</button>
+                    <button class="icon-btn" type="button" aria-label="Wishlist">♡</button>
+                  </div>
+                </div>
+
+                <div class="hero-card">
+                  <div class="hero-content">
+                    <div class="deal-chip">Today only · 20% off essentials</div>
+                    <h4>Fast checkout. Clear choices.</h4>
+                    <p>One focused promo banner with a direct conversion message.</p>
+                    <div class="countdown-chip" data-countdown="variant-a">Ends in 06:48:22</div>
+                  </div>
+                </div>
+
+                <div class="catalog minimal">
+                  <article class="product-card">
+                    <div class="media">⌚</div>
+                    <div>
+                      <h5>Everyday Smart Watch</h5>
+                      <div class="stars">★★★★★ 4.8</div>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$129</div>
+                      <button class="action-button" type="button">Quick Add to Cart</button>
+                    </div>
+                  </article>
+                  <article class="product-card">
+                    <div class="media">🎧</div>
+                    <div>
+                      <h5>Noise Cancelling Earbuds</h5>
+                      <div class="stars">★★★★☆ 4.6</div>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$89</div>
+                      <button class="action-button" type="button">Quick Add to Cart</button>
+                    </div>
+                  </article>
+                  <article class="product-card">
+                    <div class="media">📱</div>
+                    <div>
+                      <h5>MagSafe Charging Stand</h5>
+                      <div class="stars">★★★★★ 4.9</div>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$49</div>
+                      <button class="action-button" type="button">Quick Add to Cart</button>
+                    </div>
+                  </article>
+                  <article class="product-card">
+                    <div class="media">👜</div>
+                    <div>
+                      <h5>Minimal Carry Sling Bag</h5>
+                      <div class="stars">★★★★☆ 4.7</div>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$72</div>
+                      <button class="action-button" type="button">Quick Add to Cart</button>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="variant-card">
+          <div class="variant-header">
+            <div>
+              <h3>Mobile Frame 2: Variant B — Rich &amp; Discovery-Focused</h3>
+              <p>Built for browsing depth, visual richness, and cross-selling opportunities.</p>
+            </div>
+            <span class="pill">Targeting Engagement</span>
+          </div>
+
+          <div class="phone-shell">
+            <div class="phone-notch"></div>
+            <div class="phone">
+              <div class="status-bar">
+                <span>9:41</span>
+                <span>5G  ▮▮▮  92%</span>
+              </div>
+              <div class="phone-body">
+                <div class="category-row" aria-label="Category navigation">
+                  <button class="category-pill active" type="button">Electronics</button>
+                  <button class="category-pill" type="button">Fashion</button>
+                  <button class="category-pill" type="button">Home</button>
+                  <button class="category-pill" type="button">Deals</button>
+                </div>
+
+                <div class="hero-carousel" aria-label="Promotional hero carousel">
+                  <div class="hero-card" data-hero-card>
+                    <div class="hero-content">
+                      <div class="deal-chip" data-hero-title>Flash Deal · Trending now</div>
+                      <h4 data-hero-heading>Discover what is moving fastest.</h4>
+                      <p data-hero-copy>Rotating promotional story with urgency, category discovery, and limited-time value.</p>
+                      <div class="countdown-chip" data-hero-countdown>Ends in 01:12:09</div>
+                    </div>
+                  </div>
+                  <div class="hero-controls" aria-label="Hero carousel controls">
+                    <button class="hero-dot active" type="button" data-hero-index="0" aria-label="Slide 1"></button>
+                    <button class="hero-dot" type="button" data-hero-index="1" aria-label="Slide 2"></button>
+                    <button class="hero-dot" type="button" data-hero-index="2" aria-label="Slide 3"></button>
+                  </div>
+                </div>
+
+                <div class="catalog discovery">
+                  <article class="product-card featured">
+                    <div class="feature-strip">
+                      <span class="badge trending">Trending</span>
+                      <span class="stock">In stock</span>
+                    </div>
+                    <div class="media">📷</div>
+                    <div>
+                      <h5>Creator Mirrorless Camera</h5>
+                      <div class="stars">★★★★★ 4.9</div>
+                    </div>
+                    <div class="swatches" aria-label="Color swatches">
+                      <span class="swatch blue"></span>
+                      <span class="swatch charcoal"></span>
+                      <span class="swatch peach"></span>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$349</div>
+                      <button class="heart-toggle" type="button" aria-label="Save to wishlist">♡</button>
+                    </div>
+                    <button class="action-button secondary" type="button">Save to Wishlist</button>
+                  </article>
+
+                  <article class="product-card">
+                    <div class="feature-strip">
+                      <span class="badge trending">Trending</span>
+                      <span class="stock low">Low stock</span>
+                    </div>
+                    <div class="media">👟</div>
+                    <div>
+                      <h5>Street Runner Sneakers</h5>
+                      <div class="stars">★★★★☆ 4.7</div>
+                    </div>
+                    <div class="swatches" aria-label="Color swatches">
+                      <span class="swatch charcoal"></span>
+                      <span class="swatch green"></span>
+                      <span class="swatch blue"></span>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$98</div>
+                      <button class="heart-toggle" type="button" aria-label="Save to wishlist">♡</button>
+                    </div>
+                    <button class="action-button secondary" type="button">Save to Wishlist</button>
+                  </article>
+
+                  <article class="product-card">
+                    <div class="feature-strip">
+                      <span class="badge">New arrival</span>
+                      <span class="stock">In stock</span>
+                    </div>
+                    <div class="media">🛋️</div>
+                    <div>
+                      <h5>Accent Lounge Chair</h5>
+                      <div class="stars">★★★★☆ 4.5</div>
+                    </div>
+                    <div class="swatches" aria-label="Color swatches">
+                      <span class="swatch peach"></span>
+                      <span class="swatch blue"></span>
+                      <span class="swatch green"></span>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$162</div>
+                      <button class="heart-toggle" type="button" aria-label="Save to wishlist">♡</button>
+                    </div>
+                    <button class="action-button secondary" type="button">Save to Wishlist</button>
+                  </article>
+
+                  <article class="product-card">
+                    <div class="feature-strip">
+                      <span class="badge trending">Hot deal</span>
+                      <span class="stock">In stock</span>
+                    </div>
+                    <div class="media">⌚</div>
+                    <div>
+                      <h5>Performance Tracker Pro</h5>
+                      <div class="stars">★★★★★ 4.8</div>
+                    </div>
+                    <div class="swatches" aria-label="Color swatches">
+                      <span class="swatch green"></span>
+                      <span class="swatch charcoal"></span>
+                      <span class="swatch blue"></span>
+                    </div>
+                    <div class="meta-row">
+                      <div class="price">$139</div>
+                      <button class="heart-toggle" type="button" aria-label="Save to wishlist">♡</button>
+                    </div>
+                    <button class="action-button secondary" type="button">Save to Wishlist</button>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <h2>Interactive Stakeholder Feedback &amp; Voting Panel</h2>
+        <p>Capture preferences and log the decision live into the stakeholder summary.</p>
+      </div>
+
+      <div class="feedback-grid">
+        <div class="feedback-card">
+          <h2>Submit Feedback</h2>
+          <p>Use the form below to record design direction, approval status, and comments for each stakeholder.</p>
+
+          <form id="feedbackForm" class="form-grid">
+            <div class="control-group">
+              <label>Vote Selector</label>
+              <div class="voting-cards">
+                <label class="vote-card active">
+                  <input type="radio" name="vote" value="Prefer Variant A" checked />
+                  <strong>Prefer Variant A</strong>
+                  <span>Minimalist, direct, and optimized for faster conversion.</span>
+                </label>
+                <label class="vote-card">
+                  <input type="radio" name="vote" value="Prefer Variant B" />
+                  <strong>Prefer Variant B</strong>
+                  <span>Rich discovery, exploration, and stronger merchandising depth.</span>
+                </label>
+                <label class="vote-card">
+                  <input type="radio" name="vote" value="Hybrid Approach" />
+                  <strong>Hybrid Approach</strong>
+                  <span>Blend the efficiency of A with selective discovery elements from B.</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="stakeholderName">Stakeholder Name / Role</label>
+              <input id="stakeholderName" class="field-input" type="text" placeholder="Marketing Lead, Product Manager, Tech Lead" required />
+            </div>
+
+            <div class="control-group">
+              <label for="approvalStatus">Overall Approval Status</label>
+              <select id="approvalStatus" class="field-select" required>
+                <option>Approved</option>
+                <option>Needs Revision</option>
+                <option>Rejected</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="designNotes">Key Pros / Cons &amp; Design Notes</label>
+              <textarea id="designNotes" class="field-textarea" placeholder="Enter key decision points, trade-offs, and implementation notes." required></textarea>
+            </div>
+
+            <div class="button-row">
+              <button class="primary-button" type="submit">Submit Feedback &amp; Log Vote</button>
+              <button class="secondary-button" type="button" id="clearFormButton">Reset Form</button>
+            </div>
+          </form>
+        </div>
+
+        <aside class="summary-card">
+          <h2>Stakeholder Decisions Summary</h2>
+          <p>Live log of responses submitted through the feedback form.</p>
+
+          <div class="summary-tools">
+            <div class="metric">
+              <strong id="voteCount">0</strong>
+              <span>Recorded decisions</span>
+            </div>
+            <div class="metric">
+              <strong id="approvalCount">0</strong>
+              <span>Approved responses</span>
+            </div>
+            <div class="metric">
+              <strong id="hybridCount">0</strong>
+              <span>Hybrid votes</span>
+            </div>
+          </div>
+
+          <div class="table-wrap" role="region" aria-label="Stakeholder decisions summary">
+            <table>
+              <thead>
+                <tr>
+                  <th>Stakeholder</th>
+                  <th>Vote</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="summaryBody">
+                <tr id="emptyRow">
+                  <td colspan="4">
+                    <div class="empty-state">No decisions logged yet. Submit the first stakeholder review to populate the summary.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="footer-note">The summary updates instantly so stakeholders can see how the approval conversation evolves in real time.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const heroVariants = [
+      {
+        title: 'Flash Deal · Trending now',
+        heading: 'Discover what is moving fastest.',
+        copy: 'Rotating promotional story with urgency, category discovery, and limited-time value.',
+        countdown: 'Ends in 01:12:09',
+        gradient: 'linear-gradient(135deg, #102337 0%, #17314f 42%, #7f8cff 100%)'
+      },
+      {
+        title: 'Weekend Savings · Category Spotlight',
+        heading: 'Curated picks for browsing depth.',
+        copy: 'Showcase multiple products, encourage exploration, and lift cross-sell opportunities.',
+        countdown: 'Ends in 03:08:40',
+        gradient: 'linear-gradient(135deg, #2b1b43 0%, #53367b 48%, #ff9c82 100%)'
+      },
+      {
+        title: 'Member Only · Limited inventory',
+        heading: 'Drive urgency through scarcity.',
+        copy: 'Use countdowns and social cues to convert engaged shoppers into buyers sooner.',
+        countdown: 'Ends in 00:44:18',
+        gradient: 'linear-gradient(135deg, #13324d 0%, #185a7b 48%, #6fe3c4 100%)'
+      }
+    ];
+
+    const heroCard = document.querySelector('[data-hero-card]');
+    const heroTitle = document.querySelector('[data-hero-title]');
+    const heroHeading = document.querySelector('[data-hero-heading]');
+    const heroCopy = document.querySelector('[data-hero-copy]');
+    const heroCountdown = document.querySelector('[data-hero-countdown]');
+    const heroDots = Array.from(document.querySelectorAll('.hero-dot'));
+    let heroIndex = 0;
+
+    function setHero(index) {
+      heroIndex = index;
+      const variant = heroVariants[index];
+      heroTitle.textContent = variant.title;
+      heroHeading.textContent = variant.heading;
+      heroCopy.textContent = variant.copy;
+      heroCountdown.textContent = variant.countdown;
+      heroCard.style.background = variant.gradient;
+      heroDots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === index));
+    }
+
+    heroDots.forEach((dot) => {
+      dot.addEventListener('click', () => setHero(Number(dot.dataset.heroIndex)));
+    });
+
+    setInterval(() => setHero((heroIndex + 1) % heroVariants.length), 5000);
+    setHero(0);
+
+    const countdownTargets = {
+      'variant-a': 6 * 3600 + 48 * 60 + 22
+    };
+
+    function formatDuration(totalSeconds) {
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function tickCountdown() {
+      document.querySelectorAll('[data-countdown]').forEach((element) => {
+        const key = element.dataset.countdown;
+        countdownTargets[key] = Math.max(0, countdownTargets[key] - 1);
+        element.textContent = `Ends in ${formatDuration(countdownTargets[key])}`;
+      });
+    }
+
+    setInterval(tickCountdown, 1000);
+
+    const voteCards = Array.from(document.querySelectorAll('.vote-card'));
+    voteCards.forEach((card) => {
+      const input = card.querySelector('input');
+      input.addEventListener('change', () => {
+        voteCards.forEach((otherCard) => otherCard.classList.toggle('active', otherCard === card));
+      });
+    });
+
+    const feedbackForm = document.getElementById('feedbackForm');
+    const summaryBody = document.getElementById('summaryBody');
+    const emptyRow = document.getElementById('emptyRow');
+    const voteCount = document.getElementById('voteCount');
+    const approvalCount = document.getElementById('approvalCount');
+    const hybridCount = document.getElementById('hybridCount');
+    const clearFormButton = document.getElementById('clearFormButton');
+
+    const totals = {
+      votes: 0,
+      approved: 0,
+      hybrid: 0
+    };
+
+    function updateMetrics() {
+      voteCount.textContent = totals.votes;
+      approvalCount.textContent = totals.approved;
+      hybridCount.textContent = totals.hybrid;
+    }
+
+    function statusClass(status) {
+      return status === 'Approved'
+        ? 'status-approved'
+        : status === 'Needs Revision'
+          ? 'status-needs-revision'
+          : 'status-rejected';
+    }
+
+    feedbackForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(feedbackForm);
+      const vote = formData.get('vote');
+      const name = document.getElementById('stakeholderName').value.trim();
+      const status = document.getElementById('approvalStatus').value;
+      const notes = document.getElementById('designNotes').value.trim();
+
+      if (!name || !notes) {
+        return;
+      }
+
+      emptyRow?.remove();
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${name}</strong></td>
+        <td>${vote}</td>
+        <td><span class="status-tag ${statusClass(status)}">${status}</span></td>
+        <td>${notes}</td>
+      `;
+
+      summaryBody.prepend(row);
+      totals.votes += 1;
+      if (status === 'Approved') {
+        totals.approved += 1;
+      }
+      if (vote === 'Hybrid Approach') {
+        totals.hybrid += 1;
+      }
+      updateMetrics();
+      feedbackForm.reset();
+      voteCards[0].querySelector('input').checked = true;
+      voteCards.forEach((card, index) => card.classList.toggle('active', index === 0));
+    });
+
+    clearFormButton.addEventListener('click', () => {
+      feedbackForm.reset();
+      voteCards[0].querySelector('input').checked = true;
+      voteCards.forEach((card, index) => card.classList.toggle('active', index === 0));
+    });
+
+    updateMetrics();
+  </script>
+</body>
+</html>
