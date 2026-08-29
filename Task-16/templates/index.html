@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask To-Do Containerized</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; padding: 2rem; max-width: 600px; margin: 0 auto; }
+        .card { background: #1e293b; padding: 2rem; border-radius: 10px; }
+        h1 { color: #38bdf8; }
+        input[type="text"] { width: 70%; padding: 10px; border-radius: 5px; border: none; }
+        button { padding: 10px 15px; background: #0284c7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        ul { list-style: none; padding: 0; }
+        li { background: #334155; margin: 10px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .completed { text-decoration: line-through; color: #94a3b8; }
+        a { color: #f43f5e; text-decoration: none; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Flask To-Do App (Dockerized)</h1>
+        <form action="/add" method="POST">
+            <input type="text" name="title" placeholder="Enter new task..." required>
+            <button type="submit">Add Task</button>
+        </form>
+        <ul>
+            {% for todo in todos %}
+            <li>
+                <span class="{% if todo.status == 'Completed' %}completed{% endif %}">
+                    {{ todo.id }}. {{ todo.title }} ({{ todo.status }})
+                </span>
+                <div>
+                    {% if todo.status != 'Completed' %}
+                    <a href="/complete/{{ todo.id }}" style="color:#10b981;">Done</a>
+                    {% endif %}
+                    <a href="/delete/{{ todo.id }}">Delete</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

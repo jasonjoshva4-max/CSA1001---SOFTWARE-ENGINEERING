@@ -1,0 +1,23 @@
+name: CI/CD Pipeline - Continuous Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies & Test
+      run: |
+        pip install pytest
+        python -m unittest discover

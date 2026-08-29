@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'my-flask-app'
+        IMAGE_TAG = "v${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running Automated Tests...'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker Image: ${APP_NAME}:${IMAGE_TAG}..."
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to Staging Environment...'
+            }
+        }
+    }
+
+    post {
+        success { echo 'Pipeline Completed Successfully!' }
+        failure { echo 'Pipeline Failed!' }
+    }
+}
